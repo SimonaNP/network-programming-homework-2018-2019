@@ -1,26 +1,24 @@
 package client;
 
+import java.io.*;
+import java.net.*;
 
-import java.io.IOException;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.Scanner;
+
 
 public class Client {
-	
-	
-	ClientConnection clientConnection;
-	boolean shouldRun = true;
 
-	public static void main(String[] args)   {
-		new Client();
-	}
+	ClientThread clientThread;
+	boolean shouldRun = true; 
 	
-	public Client() {
+    public static void main(String[] args) throws IOException {
+    	new Client();
+}
+    
+    public Client() {
 		 try {
-			Socket socket = new Socket("localhost",1234);
-			clientConnection = new ClientConnection(socket, this);
-			clientConnection.start();
+			 MulticastSocket  clientSocket = new MulticastSocket ();
+			 clientThread = new ClientThread(clientSocket, this);
+			 clientThread.start();
 			listenForInput();
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
@@ -29,12 +27,12 @@ public class Client {
 		}
 		 
 	}
-	
-	public void listenForInput() {
-		Scanner console = new Scanner(System.in);
-		
-		while(shouldRun) {
-			while(!console.hasNextLine()) {
+    
+    public void listenForInput() throws IOException {
+		 BufferedReader clientRead =new BufferedReader(new InputStreamReader(System.in));
+		 
+		while(true) {
+			while(clientRead.readLine().isEmpty()) {
 				try {
 					Thread.sleep(1);
 				} catch (InterruptedException e) {
@@ -42,12 +40,11 @@ public class Client {
 				}
 			}
 			
-			String input = console.nextLine();
+			String input = clientRead.readLine();
 			
-			clientConnection.sendDataToServer(input);
+			clientThread.sendDataToServer(input);
+
 			
 		}
-		clientConnection.close();
-		console.close();
-	}
+}
 }

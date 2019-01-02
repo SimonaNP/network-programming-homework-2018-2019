@@ -1,33 +1,29 @@
 package server;
 
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.ArrayList;
+import java.net.DatagramSocket;
 
 public class Server {
-
-	ServerSocket serverSocket;
-	ArrayList<ServerConnection> connections = new ArrayList<ServerConnection>();
-	boolean shouldRun = true;
-
-	public static void main(String[] args) {
-		new Server();
-	}
-
-	public Server() {
-		try {
-			serverSocket = new ServerSocket(1234);
-			while (shouldRun) {
-				Socket socket = serverSocket.accept();
-				ServerConnection serverConnection = new ServerConnection(socket, this);
-				serverConnection.start();
-				connections.add(serverConnection);
-			}
-
-		} catch (IOException e) {
-			e.printStackTrace();
+	
+	DatagramSocket serverSocket ;
+	  boolean shouldRun = true;
+	  
+	  
+    public static void main(String[] args) throws java.io.IOException {
+        new Server();
+    }
+    
+public Server() {
+	try {
+		serverSocket = new DatagramSocket(4446);
+		while (shouldRun) {
+			//Socket socket = serverSocket.accept();
+			ServerThread serverThread = new ServerThread(serverSocket, this);
+			serverThread.start();
 		}
-	}
 
+	} catch (IOException e) {
+		e.printStackTrace();
+	}
+}
 }
